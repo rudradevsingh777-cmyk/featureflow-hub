@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as GoalsRouteImport } from './routes/goals'
 import { Route as DocumentsRouteImport } from './routes/documents'
@@ -57,6 +58,11 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InboxRoute = InboxRouteImport.update({
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/documents': typeof DocumentsRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
+  '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/projects': typeof ProjectsRoute
   '/reports': typeof ReportsRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/documents': typeof DocumentsRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
+  '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/projects': typeof ProjectsRoute
   '/reports': typeof ReportsRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/documents': typeof DocumentsRoute
   '/goals': typeof GoalsRoute
   '/inbox': typeof InboxRoute
+  '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/projects': typeof ProjectsRoute
   '/reports': typeof ReportsRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/goals'
     | '/inbox'
+    | '/login'
     | '/messages'
     | '/projects'
     | '/reports'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/goals'
     | '/inbox'
+    | '/login'
     | '/messages'
     | '/projects'
     | '/reports'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/goals'
     | '/inbox'
+    | '/login'
     | '/messages'
     | '/projects'
     | '/reports'
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   DocumentsRoute: typeof DocumentsRoute
   GoalsRoute: typeof GoalsRoute
   InboxRoute: typeof InboxRoute
+  LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
   ProjectsRoute: typeof ProjectsRoute
   ReportsRoute: typeof ReportsRoute
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inbox': {
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocumentsRoute: DocumentsRoute,
   GoalsRoute: GoalsRoute,
   InboxRoute: InboxRoute,
+  LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
   ProjectsRoute: ProjectsRoute,
   ReportsRoute: ReportsRoute,
@@ -334,3 +355,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
