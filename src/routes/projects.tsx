@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
-import { Plus, MoreHorizontal } from "lucide-react";
+import { Plus, MoreHorizontal, FolderKanban } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchProjects, createProject, deleteProject } from "@/lib/api";
 
@@ -204,4 +204,4 @@ function ProjectsPage() {
   );
 }
 
-import { FolderKanban } from "lucide-react";
+
