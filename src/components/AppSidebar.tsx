@@ -1,4 +1,5 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -17,6 +18,7 @@ import {
   FileText,
   MessageSquare,
   Zap,
+  LogOut,
 } from "lucide-react";
 
 const mainNav = [
@@ -40,10 +42,25 @@ const secondaryNav = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const currentPath = location.pathname;
 
   const isActive = (path: string) =>
     path === "/" ? currentPath === "/" : currentPath.startsWith(path);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/login" });
+  };
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
+  const initials = displayName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-sidebar-border bg-sidebar">
@@ -70,10 +87,13 @@ export function AppSidebar() {
 
       {/* New button */}
       <div className="px-3 pb-2">
-        <button className="flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+        <Link
+          to="/tasks"
+          className="flex w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
           <Plus className="h-3.5 w-3.5" />
           New Task
-        </button>
+        </Link>
       </div>
 
       {/* Main nav */}
@@ -113,15 +133,20 @@ export function AppSidebar() {
           <Settings className="h-4 w-4" />
           Settings
         </Link>
-        <div className="mt-2 flex items-center gap-2.5 rounded-md px-2 py-1.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-xs font-medium text-primary">
-            JD
+        {user && (
+          <div className="mt-2 flex items-center gap-2.5 rounded-md px-2 py-1.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-xs font-medium text-primary">
+              {initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-sidebar-foreground truncate">{displayName}</div>
+              <div className="text-[10px] text-muted-foreground truncate">{user.email}</div>
+            </div>
+            <button onClick={handleSignOut} className="text-muted-foreground hover:text-destructive" title="Sign out">
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs font-medium text-sidebar-foreground truncate">John Doe</div>
-            <div className="text-[10px] text-muted-foreground truncate">john@team.com</div>
-          </div>
-        </div>
+        )}
       </div>
     </aside>
   );
