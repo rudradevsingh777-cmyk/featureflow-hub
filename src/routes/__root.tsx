@@ -1,6 +1,8 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useLocation, useNavigate } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/AppSidebar";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import appCss from "../styles.css?url";
+import { useEffect } from "react";
 
 function NotFoundComponent() {
   return (
@@ -59,6 +61,51 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  return (
+    <AuthProvider>
+      <AuthenticatedLayout />
+    </AuthProvider>
+  );
+}
+
+function AuthenticatedLayout() {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isLoginPage = location.pathname === "/login";
+
+  useEffect(() => {
+    if (!loading && !user && !isLoginPage) {
+      navigate({ to: "/login" });
+    }
+  }, [user, loading, isLoginPage, navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex items-center gap-3">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <span className="text-sm text-muted-foreground">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user && !isLoginPage) {
+    return null;
+  }
+
+  if (isLoginPage) {
+    return (
+      <div className="flex min-h-screen">
+        <AppSidebar />
+        <main className="ml-60 flex-1 p-8">
+          <Outlet />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen">
       <AppSidebar />
